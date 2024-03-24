@@ -1,0 +1,71 @@
+/* Basic Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+/* Admin Sidebar Styles */
+.teacher-sidebar {
+  background-color: #333;
+  color: white;
+  height: 100vh; /* Full-height */
+  width: 250px; /* Set the width of the sidebar */
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  top: 0; /* Stay at the top */
+  left: 0; /* Stay on the left */
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 20px;
+}
+
+/* Sidebar links */
+.teacher-sidebar a {
+  padding: 10px 15px;
+  text-decoration: none;
+  font-size: 18px;
+  color: white;
+  display: block;
+}
+
+/* Active/current link */
+.teacher-sidebar a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+/* Links on hover */
+.teacher-sidebar a:hover {
+  background-color: #575757;
+  color: white;
+}
+
+/* Page content. The value of the margin-left should match the value of the sidebar's width */
+.teacher-content {
+  margin-left: 250px; /* Same as the width of the sidebar */
+  padding: 1px 16px;
+  height: 1000px; /* Sample height */
+}
+
+/* On screens that are less than 700px wide, make the sidebar into a topbar */
+@media screen and (max-width: 700px) {
+.teacher-sidebar {
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+.teacher-content {
+  margin-left: 0;
+}
+}
+
+/* On screens that are less than 400px, display the bar vertically, instead of horizontally */
+@media screen and (max-width: 400px) {
+.teacher-sidebar a {
+  float: left;
+  width: 100%;
+}
+}
