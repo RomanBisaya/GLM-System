@@ -8,6 +8,7 @@
         <li><a href="manage_offerings.php">Offerings</a></li>
         <li><a href="manage_enrollment.php">Enrollment</a></li>
         <li><a href="manage_grades.php">Grades</a></li>
+        <li><a href="manage_payments.php">Payments</a></li>
         <li><a href="teacher_logout.php">Logout</a></li>
     </ul>
 </div>

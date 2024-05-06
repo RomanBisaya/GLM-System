@@ -10,7 +10,8 @@ require_once '../includes/config.php';
 
 // Fetch students from the database
 try {
-    $stmt = $pdo->query("SELECT StudentID, FirstName, MiddleName, LastName, SchoolLevel, Username, Status FROM Students ORDER BY LastName");
+    // Now sorting just by FirstName
+    $stmt = $pdo->query("SELECT StudentID, FirstName, MiddleName, LastName, Username, Status FROM Students ORDER BY FirstName");
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("ERROR: Could not connect. " . $e->getMessage());
@@ -24,6 +25,20 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Students</title>
     <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
 
@@ -31,9 +46,7 @@ try {
 
 <div class="teacher-content">
     <h2>Manage Students</h2>
-    
-    <!-- Add Student Link -->
-    <a href="add_student.php">Add New Student</a>
+    <a href="add_student.php" class="btn">Add New Student</a>
     
     <!-- Table for Student Management -->
     <table>
@@ -42,7 +55,6 @@ try {
                 <th>First Name</th>
                 <th>Middle Name</th>
                 <th>Last Name</th>
-                <th>School Level</th>
                 <th>Username</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -54,7 +66,6 @@ try {
                 <td><?php echo htmlspecialchars($student['FirstName']); ?></td>
                 <td><?php echo htmlspecialchars($student['MiddleName']); ?></td>
                 <td><?php echo htmlspecialchars($student['LastName']); ?></td>
-                <td><?php echo htmlspecialchars($student['SchoolLevel']); ?></td>
                 <td><?php echo htmlspecialchars($student['Username']); ?></td>
                 <td><?php echo htmlspecialchars($student['Status']); ?></td>
                 <td>

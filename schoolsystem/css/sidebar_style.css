@@ -1,0 +1,76 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Light grey background for the whole page */
+}
+
+/* Student Sidebar Styles */
+.student-sidebar {
+    background-color: #2C3E50; /* Dark blue-grey */
+    color: white;
+    width: 250px; /* Set the width of the sidebar */
+    height: 100vh; /* Full-height */
+    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    top: 0; /* Stay at the top */
+    left: 0; /* Stay on the left */
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 20px;
+    z-index: 1000; /* Ensure sidebar is above other content */
+}
+
+/* Sidebar links */
+.student-sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block; /* Ensure links take the full width of the sidebar */
+}
+
+/* Active/current link */
+.student-sidebar a.active {
+    background-color: #2980B9; /* Bright blue for active links */
+    color: white;
+}
+
+/* Links on hover */
+.student-sidebar a:hover {
+    background-color: #34495E; /* Darker blue on hover */
+    color: white;
+}
+
+/* Main content area should match the HTML class used */
+.main-content {
+    margin-left: 250px; /* Push the content to the right, out from under the sidebar */
+    padding: 20px; /* Padding for the content inside */
+    min-height: 100vh; /* Full height to ensure it takes minimum of full viewport height */
+    background-color: #fff; /* Optional: For better visibility */
+    position: relative; /* Ensures it is positioned relative to its normal position */
+    z-index: 1; /* Ensures content is above the background but below the sidebar */
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 700px) {
+    .student-sidebar {
+        width: 100%; /* Full width */
+        height: auto; /* Adjust height to content */
+        position: relative; /* Make the sidebar flow in the document as a normal block */
+    }
+    .main-content {
+        margin-left: 0; /* Remove the margin for small screens */
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .student-sidebar a {
+        float: none; /* Default float to avoid alignment issues */
+        width: 100%; /* Full width */
+    }
+}

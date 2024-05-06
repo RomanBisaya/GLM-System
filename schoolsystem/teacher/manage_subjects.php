@@ -25,10 +25,11 @@ if (isset($_POST['schoolLevelFilter']) && in_array($_POST['schoolLevelFilter'], 
 }
 
 // Prepare SQL based on filter
-$sql = "SELECT SubjectID, SubjectName, SchoolLevel, IsActive FROM subjects";
+$sql = "SELECT SubjectID, SubjectName, SubjectSchoolLevel, IsActive FROM subjects"; // Correct column name used here
 if (!empty($schoolLevelFilter)) {
-    $sql .= " WHERE SchoolLevel = :schoolLevelFilter";
+    $sql .= " WHERE SubjectSchoolLevel = :schoolLevelFilter"; // Correct column name used here
 }
+$sql .= " ORDER BY SubjectSchoolLevel, SubjectName"; // Adding ORDER BY clause for sorting
 
 if ($stmt = $pdo->prepare($sql)) {
     if (!empty($schoolLevelFilter)) {
@@ -54,6 +55,20 @@ unset($pdo);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Subjects</title>
     <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders */
+        }
+        th, td {
+            border: 1px solid #ddd; /* Add borders to cells */
+            padding: 8px; /* Add padding */
+            text-align: left; /* Align text to the left */
+        }
+        th {
+            background-color: #f2f2f2; /* Light grey background for headers */
+        }
+    </style>
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>
@@ -82,7 +97,7 @@ unset($pdo);
             <?php foreach ($subjects as $subject): ?>
             <tr>
                 <td><?php echo htmlspecialchars($subject['SubjectName']); ?></td>
-                <td><?php echo htmlspecialchars($subject['SchoolLevel']); ?></td>
+                <td><?php echo htmlspecialchars($subject['SubjectSchoolLevel']); ?></td>
                 <td>
                     <a href="view_subject.php?id=<?php echo $subject['SubjectID']; ?>">View</a> |
                     <a href="edit_subject.php?id=<?php echo $subject['SubjectID']; ?>">Edit</a> |
@@ -95,7 +110,7 @@ unset($pdo);
                 </td>
             </tr>
             <?php endforeach; ?>
-        </tbody>
+            </tbody>
         </table>
     </div>
     <?php include '../includes/footer.php'; ?>

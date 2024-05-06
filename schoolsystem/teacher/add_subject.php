@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "Subject name and school level are required.";
     } else {
         // Prepare an insert statement
-        $sql = "INSERT INTO subjects (SubjectName, Description, SchoolLevel, IsActive) VALUES (:subjectName, :description, :schoolLevel, :isActive)";
+        $sql = "INSERT INTO subjects (SubjectName, Description, SubjectSchoolLevel, IsActive) VALUES (:subjectName, :description, :schoolLevel, :isActive)";
         
         if ($stmt = $pdo->prepare($sql)) {
             // Bind variables to the prepared statement as parameters
