@@ -57,6 +57,8 @@ if (!empty($selectedTermYear)) {
 include 'sidebar.php'; // Include the student sidebar
 ?>
 
+<link rel="stylesheet" href="../css/student_style.css">
+
 <div class="main-content">
     <h1>View Grades</h1>
     <form action="view_grades.php" method="post">

@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Retrieve individual field value
                     $subjectName = $row["SubjectName"];
                     $description = $row["Description"];
-                    $schoolLevel = $row["SchoolLevel"];
+                    $schoolLevel = $row["SubjectSchoolLevel"];
                     $isActive = $row["IsActive"];
                 } else {
                     // URL doesn't contain valid id. Redirect to error page

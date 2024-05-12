@@ -19,7 +19,7 @@ $selectedSchoolYear = $_POST['schoolYear'] ?? '';
 
 $enrollments = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $query = "SELECT DISTINCT s.StudentID, CONCAT(s.FirstName, ' ', s.MiddleName, ' ', s.LastName) AS FullName, e.SchoolLevel, o.SchoolYear
+    $query = "SELECT DISTINCT s.StudentID, CONCAT(s.FirstName, ' ', s.MiddleName, ' ', s.LastName) AS FullName, e.SchoolLevel, o.SchoolYear, e.IsActive
               FROM enrollment e
               JOIN students s ON e.StudentID = s.StudentID
               JOIN offerings o ON e.OfferingID = o.OfferingID
@@ -108,7 +108,11 @@ unset($pdo);
                     <td>
                         <a href="view_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>">View</a> |
                         <a href="edit_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>">Edit</a> |
-                        <a href="delete_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" onclick="return confirm('Are you sure you want to delete this enrollment?');">Delete</a>
+                        <?php if ($enrollment['IsActive']): ?>
+                            <a href="deactivate_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" onclick="return confirm('Are you sure you want to deactivate this enrollment?');">Deactivate</a>
+                        <?php else: ?>
+                            <a href="activate_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" onclick="return confirm('Are you sure you want to activate this enrollment?');">Activate</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

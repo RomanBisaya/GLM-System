@@ -33,7 +33,6 @@ if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
                 $firstName = $row["FirstName"];
                 $middleName = $row["MiddleName"];
                 $lastName = $row["LastName"];
-                $schoolLevel = $row["SchoolLevel"];
                 $username = $row["Username"];
                 // Consider not displaying sensitive information like passwords
                 
@@ -84,10 +83,6 @@ if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
         <div class="form-group">
             <label>Last Name:</label>
             <p><b><?php echo htmlspecialchars($lastName); ?></b></p>
-        </div>
-        <div class="form-group">
-            <label>School Level:</label>
-            <p><b><?php echo htmlspecialchars($schoolLevel); ?></b></p>
         </div>
         <div class="form-group">
             <label>Username:</label>

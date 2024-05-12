@@ -64,12 +64,25 @@ unset($pdo);
         th {
             background-color: #f2f2f2;
         }
+        .btn-back {
+            padding: 8px 16px;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>
     <div class="teacher-content">
         <h2>Student Enrollment Details</h2>
+        <a href="manage_enrollment.php" class="btn-back">Back to Enrollments</a>
         <?php if ($studentName): ?>
             <p><strong>Student Name:</strong> <?= htmlspecialchars($studentName); ?></p>
         <?php endif; ?>
