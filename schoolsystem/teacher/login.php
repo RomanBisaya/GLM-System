@@ -32,4 +32,9 @@ include '../includes/header.php'; // Ensure this path is correct based on your d
     <?php endif; ?>
 </div>
 
-<?php include '../includes/footer.php'; // Ensure this path is correct based on your directory structure ?>
+<div>
+
+    <br>
+    <br>
+</div>
+<?php require_once '../includes/footer.php'; ?>

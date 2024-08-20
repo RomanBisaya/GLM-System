@@ -55,7 +55,130 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Student Payments</title>
-    <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+    body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.teacher-content {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow-x: auto; /* Allows horizontal scrolling if the content is too wide */
+    overflow-y: visible; /* Prevents cutting off vertical content */
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.error {
+    color: #FF0000;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.btn.add {
+    background-color: #007BFF; /* Blue for add buttons */
+}
+
+.btn.add:hover {
+    background-color: #0056b3;
+}
+
+.btn.edit {
+    background-color: #ffc107; /* Yellow for edit buttons */
+}
+
+.btn.edit:hover {
+    background-color: #e0a800;
+}
+
+.btn.delete {
+    background-color: #dc3545; /* Red for delete buttons */
+}
+
+.btn.delete:hover {
+    background-color: #c82333;
+}
+
+form {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    width: 150px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    table-layout: auto; /* Allows table to adjust its layout dynamically */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #007BFF;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f8ff;
+}
+
+tr:hover {
+    background-color: #e1ecff;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+    clear: both; /* Ensures the footer stays below the content */
+    position: relative;
+    bottom: 0;
+    left: 0;
+}
+
+    </style>
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>
@@ -64,7 +187,7 @@ try {
         <?php if (!empty($error)): ?>
             <p class="error"><?= $error; ?></p>
         <?php endif; ?>
-        <a href="add_payment.php" class="btn">Add Payment</a>
+        <a href="add_payment.php" class="btn add">Add Payment</a>
 
         <!-- Dropdown for Filters -->
         <form method="get">
@@ -112,8 +235,8 @@ try {
                     <td><?= date('F-d-Y', strtotime($payment['EndDate'])); ?></td>
                     <td><?= htmlspecialchars($payment['PaymentStatus']); ?></td>
                     <td>
-                        <a href="edit_payment.php?id=<?= $payment['PaymentID']; ?>" class="btn">Edit</a>
-                        <a href="delete_payment.php?id=<?= $payment['PaymentID']; ?>" onclick="return confirm('Are you sure you want to delete this payment?');" class="btn">Delete</a>
+                        <a href="edit_payment.php?id=<?= $payment['PaymentID']; ?>" class="btn edit">Edit</a>
+                        <a href="delete_payment.php?id=<?= $payment['PaymentID']; ?>" onclick="return confirm('Are you sure you want to delete this payment?');" class="btn delete">Delete</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

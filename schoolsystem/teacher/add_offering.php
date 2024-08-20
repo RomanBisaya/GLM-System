@@ -48,7 +48,132 @@ unset($pdo);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Offering</title>
-    <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+        /* General page styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e9f2fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.teacher-content {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    flex-grow: 1; /* Allows content to expand to fit available space */
+    overflow: hidden; /* Prevents content from overflowing the container */
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+input[type="text"],
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+input[type="text"]:focus,
+select:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.form-group > label {
+    margin-right: 10px;
+}
+
+input[type="submit"],
+.btn {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover,
+.btn:hover {
+    background-color: #0056b3;
+}
+
+input[type="submit"] {
+    margin-top: 20px;
+}
+
+input[type="text"][style="width: 60px;"] {
+    width: 60px;
+    display: inline-block;
+    margin-right: 5px;
+    text-align: center;
+}
+
+.form-group label[for^="subject_"] {
+    display: inline-block;
+    width: auto;
+}
+
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    margin-top: auto;
+}
+
+
+    </style>
+
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>

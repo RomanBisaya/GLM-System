@@ -46,19 +46,173 @@ unset($pdo);
     <title>Manage Enrollment</title>
     <link rel="stylesheet" href="../css/teacher_style.css">
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #ccc;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+    body {
+    font-family: Arial, sans-serif;
+    background-color: #e9f2fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.teacher-content {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    flex-grow: 1;
+    overflow-x: auto; /* Allows horizontal scrolling if table exceeds container width */
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.form-group select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.form-group button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-group button:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 16px;
+    table-layout: auto; /* Adjusts table width automatically based on content */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    word-wrap: break-word; /* Ensures content wraps within table cells */
+}
+
+th {
+    background-color: #007BFF;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f8ff;
+}
+
+tr:hover {
+    background-color: #d9e9ff;
+}
+
+/* Action Buttons */
+.btn {
+    padding: 8px 15px;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 5px;
+    margin-right: 5px;
+    color: white;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.view {
+    background-color: #17a2b8;
+}
+
+.btn.view:hover {
+    background-color: #117a8b;
+}
+
+.btn.edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn.edit:hover {
+    background-color: #e0a800;
+    color: #333;
+}
+
+.btn.deactivate {
+    background-color: #dc3545;
+}
+
+.btn.deactivate:hover {
+    background-color: #c82333;
+}
+
+.btn.activate {
+    background-color: #28a745;
+}
+
+.btn.activate:hover {
+    background-color: #218838;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    clear: both;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    background-color: #007BFF; /* Blue background */
+    color: white; /* White text */
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly increase size on hover */
+}
+
     </style>
 </head>
 <body>
@@ -106,12 +260,12 @@ unset($pdo);
                     <td><?= htmlspecialchars($enrollment['SchoolLevel']); ?></td>
                     <td><?= htmlspecialchars($enrollment['SchoolYear']); ?></td>
                     <td>
-                        <a href="view_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>">View</a> |
-                        <a href="edit_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>">Edit</a> |
+                        <a href="view_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" class="btn view">View</a>
+                        <a href="edit_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" class="btn edit">Edit</a>
                         <?php if ($enrollment['IsActive']): ?>
-                            <a href="deactivate_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" onclick="return confirm('Are you sure you want to deactivate this enrollment?');">Deactivate</a>
+                            <a href="deactivate_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" class="btn deactivate" onclick="return confirm('Are you sure you want to deactivate this enrollment?');">Deactivate</a>
                         <?php else: ?>
-                            <a href="activate_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" onclick="return confirm('Are you sure you want to activate this enrollment?');">Activate</a>
+                            <a href="activate_enrollment.php?StudentID=<?= $enrollment['StudentID']; ?>" class="btn activate" onclick="return confirm('Are you sure you want to activate this enrollment?');">Activate</a>
                         <?php endif; ?>
                     </td>
                 </tr>

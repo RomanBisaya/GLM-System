@@ -7,8 +7,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     exit;
 }
 
-// Adjust the path as needed for header and sidebar2
-require_once '../includes/header.php';
+
 require_once 'sidebar2.php'; // Include the alternative sidebar here
 ?>
 

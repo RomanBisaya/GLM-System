@@ -31,5 +31,6 @@ include '../includes/header.php'; // Include the header file. Adjust the path if
     <script>alert('<?php echo $errorMessage; ?>');</script>
     <?php endif; ?>
 </div>
-
+<br>
+<br>
 <?php include '../includes/footer.php'; // Include the footer file. Adjust the path if necessary. ?>

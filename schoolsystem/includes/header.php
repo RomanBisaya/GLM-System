@@ -1,6 +1,6 @@
 <header>
+<link rel="stylesheet" href="/schoolsystem/css/style.css">
     <h1>Welcome to God's Little Miracles Learning Center</h1>
-    <link rel="stylesheet" href="/schoolsystem/css/style.css">
     <nav>
         <ul>
             <li><a href="/schoolsystem/index.php">Home</a></li>

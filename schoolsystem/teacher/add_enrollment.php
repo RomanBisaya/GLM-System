@@ -70,7 +70,101 @@ unset($pdo);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Enrollment</title>
-    <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #e9f2fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.teacher-content {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group select,
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#subjectsContainer label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#subjectsContainer div {
+    margin-bottom: 10px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.alert.alert-danger {
+    color: #fff;
+    background-color: #dc3545;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+}
+
+.btn-cancel:hover {
+    background-color: #c82333;
+}
+
+    </style>
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>
@@ -125,6 +219,7 @@ unset($pdo);
             <?php endif; ?>
             <input type="hidden" name="fetch" value="1">
             <button type="submit" name="enroll" class="btn">Enroll Student</button>
+            <a href="manage_enrollment.php" class="btn btn-cancel">Cancel</a>
         </form>
     </div>
     <?php include '../includes/footer.php'; ?>

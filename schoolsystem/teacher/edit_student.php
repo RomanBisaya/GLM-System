@@ -10,8 +10,8 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 require_once '../includes/config.php';
 
 // Define variables and initialize with empty values
-$firstName = $middleName = $lastName = $schoolLevel = $username = "";
-$firstName_err = $middleName_err = $lastName_err = $schoolLevel_err = $username_err = $password_err = "";
+$firstName = $middleName = $lastName = $username = "";
+$firstName_err = $middleName_err = $lastName_err = $username_err = $password_err = "";
 $id = 0;
 
 // Processing form data when form is submitted
@@ -29,17 +29,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $firstName = trim($_POST["firstName"]);
     $middleName = trim($_POST["middleName"]);
     $lastName = trim($_POST["lastName"]);
-    $schoolLevel = trim($_POST["schoolLevel"]);
     $username = trim($_POST["username"]);
-    // Check if password field was filled out
     $password_provided = !empty(trim($_POST["password"]));
-    if ($password_provided) {
-        $password = trim($_POST["password"]);
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hash new password
-    }
 
-    // Prepare an update statement
-    $sql = "UPDATE Students SET FirstName = :firstName, MiddleName = :middleName, LastName = :lastName, SchoolLevel = :schoolLevel, Username = :username" .
+    // Prepare an update statement without SchoolLevel
+    $sql = "UPDATE Students SET FirstName = :firstName, MiddleName = :middleName, LastName = :lastName, Username = :username" .
         ($password_provided ? ", Password = :password" : "") . " WHERE StudentID = :id";
 
     if ($stmt = $pdo->prepare($sql)) {
@@ -48,9 +42,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(":firstName", $firstName, PDO::PARAM_STR);
         $stmt->bindParam(":middleName", $middleName, PDO::PARAM_STR);
         $stmt->bindParam(":lastName", $lastName, PDO::PARAM_STR);
-        $stmt->bindParam(":schoolLevel", $schoolLevel, PDO::PARAM_STR);
         $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+
         if ($password_provided) {
+            $hashed_password = password_hash(trim($_POST["password"]), PASSWORD_DEFAULT);
             $stmt->bindParam(":password", $hashed_password, PDO::PARAM_STR);
         }
 
@@ -66,9 +61,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     unset($stmt);
     unset($pdo);
 } elseif (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
-    // Existing student fetching logic for initial form population
+    // Fetch existing student data for initial form population
     $id = trim($_GET["id"]);
-    // Continue with fetching existing data...
+
+    $sql = "SELECT * FROM Students WHERE StudentID = :id";
+    if ($stmt = $pdo->prepare($sql)) {
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            if ($stmt->rowCount() == 1) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $firstName = $row['FirstName'];
+                $middleName = $row['MiddleName'];
+                $lastName = $row['LastName'];
+                $username = $row['Username'];
+            } else {
+                echo "Error: No student found with the specified ID.";
+                exit();
+            }
+        } else {
+            echo "Oops! Something went wrong. Please try again later.";
+            exit();
+        }
+    }
+    unset($stmt);
 } else {
     // URL doesn't contain id parameter. Redirect to error page.
     header("location: error.php");
@@ -84,6 +100,100 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Student</title>
     <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #e9f2fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.teacher-content {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+p {
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group.has-error input {
+    border-color: #dc3545;
+}
+
+.help-block {
+    color: #dc3545;
+    font-size: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007BFF;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-default {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-default:hover {
+    background-color: #5a6268;
+}
+
+.teacher-content form .form-group:last-child {
+    text-align: center;
+}
+
+    </style>
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>
@@ -102,21 +212,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group">
                 <label>Last Name</label>
                 <input type="text" name="lastName" class="form-control" value="<?php echo htmlspecialchars($lastName); ?>" required>
-            </div>
-            <div class="form-group">
-                <label>School Level</label>
-                <select name="schoolLevel" class="form-control" required>
-                    <option value="">Select School Level</option>
-                    <option value="Junior Nursery" <?php echo ($schoolLevel == 'Junior Nursery') ? 'selected' : ''; ?>>Junior Nursery</option>
-                    <option value="Senior Nursery" <?php echo ($schoolLevel == 'Senior Nursery') ? 'selected' : ''; ?>>Senior Nursery</option>
-                    <option value="YS 1: Kindergarten" <?php echo ($schoolLevel == 'YS 1: Kindergarten') ? 'selected' : ''; ?>>YS 1: Kindergarten</option>
-                    <option value="YS 2: Grade 1" <?php echo ($schoolLevel == 'YS 2: Grade 1') ? 'selected' : ''; ?>>YS 2: Grade 1</option>
-                    <option value="YS 3: Grade 2" <?php echo ($schoolLevel == 'YS 3: Grade 2') ? 'selected' : ''; ?>>YS 3: Grade 2</option>
-                    <option value="YS 4: Grade 3" <?php echo ($schoolLevel == 'YS 4: Grade 3') ? 'selected' : ''; ?>>YS 4: Grade 3</option>
-                    <option value="YS 5: Grade 4" <?php echo ($schoolLevel == 'YS 5: Grade 4') ? 'selected' : ''; ?>>YS 5: Grade 4</option>
-                    <option value="YS 6: Grade 5" <?php echo ($schoolLevel == 'YS 6: Grade 5') ? 'selected' : ''; ?>>YS 6: Grade 5</option>
-                    <option value="YS 7: Grade 6" <?php echo ($schoolLevel == 'YS 7: Grade 6') ? 'selected' : ''; ?>>YS 7: Grade 6</option>
-                </select>
             </div>
             <div class="form-group">
                 <label>Username</label>

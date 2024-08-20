@@ -6,7 +6,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     exit;
 }
 
-require_once '../includes/header.php';
+
 require_once 'sidebar.php'; // Include the sidebar here
 ?>
 

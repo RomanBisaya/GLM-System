@@ -40,6 +40,93 @@ $yearsMonths = $pdo->query("SELECT DISTINCT YEAR(StartDate) AS Year, MONTH(Start
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Payments</title>
     <link rel="stylesheet" href="../css/student_style.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.error {
+    color: #FF0000;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    width: 150px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    table-layout: fixed; /* Ensures the table fits within the container */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    word-wrap: break-word; /* Ensures content breaks into a new line if it's too long */
+}
+
+th {
+    background-color: #007BFF;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f8ff;
+}
+
+tr:hover {
+    background-color: #e1ecff;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+    clear: both; /* Ensures the footer stays below the content */
+    position: relative;
+    bottom: 0;
+    left: 0;
+}
+
+    </style>
 </head>
 <body>
     <?php include 'sidebar.php'; ?>

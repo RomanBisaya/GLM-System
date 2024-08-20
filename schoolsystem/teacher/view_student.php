@@ -67,6 +67,73 @@ if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Student</title>
     <link rel="stylesheet" href="../css/teacher_style.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #e9f2fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.teacher-content {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group p {
+    font-size: 18px;
+    color: #333;
+    padding: 10px;
+    background-color: #f7f9fa;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.btn-primary {
+    display: inline-block;
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.teacher-content p {
+    text-align: center;
+    margin-top: 20px;
+}
+
+    </style>
 </head>
 <body>
     <?php include 'sidebar2.php'; ?>
