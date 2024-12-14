@@ -2,35 +2,46 @@
 session_start();
 
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-    header("location: login.php");
+    header("location: login.php"); // Adjust the path as needed
     exit;
 }
 
-require_once '../includes/config.php';
+require_once '../includes/config.php'; // Ensure this path is correct
 
-$studentID = $_SESSION['student_id'];
-$selectedYear = $_GET['year'] ?? date('Y');
-$selectedMonth = $_GET['month'] ?? date('m');
+$studentID = $_SESSION['student_id']; // Get student ID from session
+$schoolYears = [];
+$semesters = ['First Semester', 'Second Semester']; // Set semesters available
+$selectedYear = $_POST['schoolYear'] ?? '';
+$selectedSemester = $_POST['semester'] ?? '';
+$paymentRecords = [];
 
-// Fetch payments for the logged-in student based on selected year and month
-$payments = [];
-try {
-    $sql = "SELECT Amount, AmountPaid, StartDate, EndDate, PaymentStatus 
-            FROM payments 
-            WHERE StudentID = :studentID AND YEAR(StartDate) = :year AND MONTH(StartDate) = :month
-            ORDER BY StartDate DESC";
-    $stmt = $pdo->prepare($sql);
+// Fetch school years from the payment table
+$yearQuery = "SELECT DISTINCT school_year
+              FROM payment
+              WHERE StudentID = :studentID ORDER BY school_year";
+$stmt = $pdo->prepare($yearQuery);
+$stmt->bindParam(':studentID', $studentID);
+$stmt->execute();
+$schoolYears = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch payment records based on selected year and semester
+if (!empty($selectedYear) && !empty($selectedSemester)) {
+    $paymentQuery = "SELECT p.*, ph.amount_paid, ph.running_balance, ph.date_paid, ph.status 
+                     FROM payment p
+                     LEFT JOIN paymenthistory ph ON p.payment_id = ph.payment_id
+                     WHERE p.StudentID = :studentID 
+                     AND p.school_year = :schoolYear 
+                     AND p.semester = :semester 
+                     ORDER BY ph.date_paid ASC";
+    $stmt = $pdo->prepare($paymentQuery);
     $stmt->bindParam(':studentID', $studentID);
-    $stmt->bindParam(':year', $selectedYear);
-    $stmt->bindParam(':month', $selectedMonth);
+    $stmt->bindParam(':schoolYear', $selectedYear);
+    $stmt->bindParam(':semester', $selectedSemester);
     $stmt->execute();
-    $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    $error = "Error fetching payments: " . $e->getMessage();
+    $paymentRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Get years and months for filter
-$yearsMonths = $pdo->query("SELECT DISTINCT YEAR(StartDate) AS Year, MONTH(StartDate) AS Month FROM payments WHERE StudentID = $studentID ORDER BY Year DESC, Month DESC")->fetchAll(PDO::FETCH_ASSOC);
+include 'sidebar.php'; // Include the student sidebar
 ?>
 
 <!DOCTYPE html>
@@ -38,141 +49,192 @@ $yearsMonths = $pdo->query("SELECT DISTINCT YEAR(StartDate) AS Year, MONTH(Start
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Payments</title>
-    <link rel="stylesheet" href="../css/student_style.css">
+    <title>Student Payment History</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
-    margin: 0;
-    padding: 0;
-}
+          /* General Styles */
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
 
-.main-content {
-    max-width: 1200px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
+        h2, h3 {
+            text-align: center;
+            color: #007bff;
+        }
 
-h2 {
-    text-align: center;
-    color: #007BFF;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
+        .main-content {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-.error {
-    color: #FF0000;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
-}
+        /* Form Styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-form {
-    margin-bottom: 20px;
-    text-align: center;
-}
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
 
-select {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-right: 10px;
-    width: 150px;
-}
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 16px;
-    table-layout: fixed; /* Ensures the table fits within the container */
-}
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-    word-wrap: break-word; /* Ensures content breaks into a new line if it's too long */
-}
+        button:hover {
+            background-color: #0056b3;
+        }
 
-th {
-    background-color: #007BFF;
-    color: white;
-}
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
-tr:nth-child(even) {
-    background-color: #f2f8ff;
-}
+        thead {
+            background-color: #007bff;
+            color: #fff;
+        }
 
-tr:hover {
-    background-color: #e1ecff;
-}
+        thead th {
+            text-align: left;
+            padding: 10px;
+            font-size: 14px;
+        }
 
-footer {
-    background-color: #343a40;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    width: 100%;
-    clear: both; /* Ensures the footer stays below the content */
-    position: relative;
-    bottom: 0;
-    left: 0;
-}
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
 
+        tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        tbody td {
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-    <?php include 'sidebar.php'; ?>
-    <div class="main-content">
-        <h2>Your Payment History</h2>
-        <?php if (!empty($error)): ?>
-            <p class="error"><?= $error; ?></p>
-        <?php endif; ?>
+<div class="main-content">
+    <h2>View Payment History</h2>
+    <form method="POST" action="student_payments.php">
+        <label for="schoolYear">School Year:</label>
+        <select name="schoolYear" id="schoolYear" required>
+            <option value="">Select School Year</option>
+            <?php foreach ($schoolYears as $year): ?>
+                <option value="<?= htmlspecialchars($year['school_year']); ?>" <?= $selectedYear == $year['school_year'] ? 'selected' : ''; ?>>
+                    <?= htmlspecialchars($year['school_year']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
 
-        <!-- Year and Month Filter Form -->
-        <form action="" method="get">
-            <select name="year" onchange="this.form.submit()">
-                <?php foreach (array_unique(array_column($yearsMonths, 'Year')) as $year): ?>
-                <option value="<?= $year; ?>" <?= $year == $selectedYear ? 'selected' : ''; ?>><?= $year; ?></option>
-                <?php endforeach; ?>
-            </select>
-            <select name="month" onchange="this.form.submit()">
-                <?php foreach (array_unique(array_column($yearsMonths, 'Month')) as $month): ?>
-                <option value="<?= $month; ?>" <?= $month == $selectedMonth ? 'selected' : ''; ?>><?= date('F', mktime(0, 0, 0, $month, 1)); ?></option>
-                <?php endforeach; ?>
-            </select>
-        </form>
+        <label for="semester">Semester:</label>
+        <select name="semester" id="semester" required>
+            <option value="">Select Semester</option>
+            <?php foreach ($semesters as $semester): ?>
+                <option value="<?= $semester; ?>" <?= $selectedSemester == $semester ? 'selected' : ''; ?>><?= $semester; ?></option>
+            <?php endforeach; ?>
+        </select>
 
+        <button type="submit" name="proceed">Proceed</button>
+    </form>
+
+    <?php if (!empty($paymentRecords)): ?>
+        <h3>Payment History for <?= $selectedYear . ' - ' . $selectedSemester; ?></h3>
         <table>
             <thead>
                 <tr>
                     <th>Total Amount</th>
                     <th>Amount Paid</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
+                    <th>Date Paid</th>
                     <th>Status</th>
+                    <th>Running Balance</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($payments as $payment): ?>
-                <tr>
-                    <td><?= htmlspecialchars($payment['Amount']); ?></td>
-                    <td><?= htmlspecialchars($payment['AmountPaid']); ?></td>
-                    <td><?= date('F-d-Y', strtotime($payment['StartDate'])); ?></td>
-                    <td><?= date('F-d-Y', strtotime($payment['EndDate'])); ?></td>
-                    <td><?= htmlspecialchars($payment['PaymentStatus']); ?></td>
-                </tr>
+                <?php 
+                    $totalAmount = $paymentRecords[0]['total_amount'] ?? 0; // Use the first record to get total amount
+                    $runningBalance = $totalAmount;
+
+                    foreach ($paymentRecords as $record): 
+                        // Deduct the amount paid from the running balance
+                        $runningBalance -= $record['amount_paid']; 
+                        
+                        // Cap the running balance at zero
+                        $runningBalance = max(0, $runningBalance);
+
+                        // Determine the payment status
+                        if ($record['amount_paid'] == 0) {
+                            $status = 'Not Paid';
+                        } elseif ($runningBalance > 0) {
+                            $status = 'Partially Paid';
+                        } else {
+                            $status = 'Fully Paid';
+                        }
+                        
+                        // Format date_paid or set to N/A if it's invalid
+                        $formattedDate = ($record['date_paid'] === '0000-00-00' || strtotime($record['date_paid']) === false || $record['date_paid'] === '1970-01-01') 
+                            ? 'N/A' 
+                            : date('F d, Y', strtotime($record['date_paid']));
+                ?>
+                    <tr>
+                        <td><?php echo number_format($totalAmount, 2); ?></td>
+                        <td><?php echo number_format($record['amount_paid'], 2); ?></td>
+                        <td><?php echo $formattedDate; ?></td>
+                        <td><?php echo $status; ?></td>
+                        <td><?php echo number_format($runningBalance, 2); ?></td>
+                    </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
-    <?php include '../includes/footer.php'; ?>
+    <?php else: ?>
+        <p>No records found for the selected school year and semester.</p>
+    <?php endif; ?>
+</div>
 </body>
 </html>
