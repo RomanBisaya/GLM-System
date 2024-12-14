@@ -1,65 +1,74 @@
 <?php
-session_start();
+// Include the config.php for database connection
+include('../includes/config.php');
 
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-    header("location: ../login.php");
-    exit;
+// Check if payment_id, StudentID, and EnrollmentID are provided
+if (isset($_GET['payment_id']) && isset($_GET['StudentID']) && isset($_GET['EnrollmentID'])) {
+    $paymentID = $_GET['payment_id'];
+    $studentID = $_GET['StudentID'];
+    $enrollmentID = $_GET['EnrollmentID'];
+} else {
+    die('Missing required parameters.');
 }
 
-require_once '../includes/config.php';
+// Initialize variables for form fields
+$amountPaid = '';
+$datePaid = '';
+$status = '';
+$runningBalance = 0;
 
-$paymentId = $_GET['id'] ?? '';
-$payment = [];
-$error = '';
+// Fetch payment details
+$query = "SELECT p.*, ph.amount_paid, ph.date_paid, ph.running_balance, s.FirstName, s.LastName 
+          FROM Payment p
+          LEFT JOIN paymenthistory ph ON p.payment_id = ph.payment_id
+          JOIN Students s ON p.StudentID = s.StudentID
+          WHERE p.payment_id = :payment_id";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['payment_id' => $paymentID]);
+$payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Fetch the current payment details
-if ($paymentId) {
-    $sql = "SELECT * FROM payments WHERE PaymentID = :paymentId";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':paymentId', $paymentId, PDO::PARAM_INT);
-    if ($stmt->execute()) {
-        $payment = $stmt->fetch(PDO::FETCH_ASSOC);
-    } else {
-        $error = "Error fetching payment details: " . implode(", ", $stmt->errorInfo());
-    }
-}
-
-function determinePaymentStatus($amountPaid, $totalAmount) {
-    if ($amountPaid >= $totalAmount) {
-        return 'Fully Paid';
-    } elseif ($amountPaid > 0) {
-        return 'Partially Paid';
-    }
-    return 'Not Paid';
+// Check if payment record exists
+if (!$payment) {
+    die('Payment record not found.');
 }
 
 // Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
-    // Get form data
-    $amount = $_POST['amount'];
-    $amountPaid = $_POST['amountPaid'];
-    $startDate = $_POST['startDate'];
-    $endDate = $_POST['endDate'];
-    $paymentStatus = determinePaymentStatus($amountPaid, $amount);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get form inputs
+    $amountPaid = $_POST['amount_paid'];
+    $datePaid = $_POST['date_paid'];
+    $status = $_POST['status'];
 
-    // Update payment details
-    $sql = "UPDATE payments SET Amount = :amount, AmountPaid = :amountPaid, StartDate = :startDate, EndDate = :endDate, PaymentStatus = :paymentStatus WHERE PaymentID = :paymentId";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':amount', $amount);
-    $stmt->bindParam(':amountPaid', $amountPaid);
-    $stmt->bindParam(':startDate', $startDate);
-    $stmt->bindParam(':endDate', $endDate);
-    $stmt->bindParam(':paymentStatus', $paymentStatus);
-    $stmt->bindParam(':paymentId', $paymentId, PDO::PARAM_INT);
+    // Update the total_amount_paid directly
+    $updateQuery = "UPDATE Payment 
+                    SET total_amount_paid = :amount_paid 
+                    WHERE payment_id = :payment_id";
+    $stmt = $pdo->prepare($updateQuery);
+    $stmt->bindParam(':amount_paid', $amountPaid, PDO::PARAM_STR);
+    $stmt->bindParam(':payment_id', $paymentID, PDO::PARAM_INT);
+    $stmt->execute();
 
-    if ($stmt->execute()) {
-        header("location: manage_payments.php"); // Redirect after update
-        exit;
-    } else {
-        $error = "Error updating payment details: " . implode(", ", $stmt->errorInfo());
-    }
+    // Recalculate the running_balance after updating total_amount_paid
+    $runningBalance = $payment['total_amount'] - $amountPaid;
+
+    // Insert a new record into the paymenthistory table
+    $historyQuery = "INSERT INTO paymenthistory (payment_id, StudentID, EnrollmentID, amount_paid, running_balance, date_paid, status) 
+                     VALUES (:payment_id, :student_id, :enrollment_id, :amount_paid, :running_balance, :date_paid, :status)";
+    $stmt = $pdo->prepare($historyQuery);
+    $stmt->execute([
+        'payment_id' => $paymentID,
+        'student_id' => $studentID,
+        'enrollment_id' => $enrollmentID,
+        'amount_paid' => $amountPaid,
+        'running_balance' => $runningBalance,
+        'date_paid' => $datePaid,
+        'status' => $status
+    ]);
+
+    // Redirect to manage payments
+    header("Location: manage_payments.php");
+    exit;
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -68,32 +77,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Payment</title>
-    <link rel="stylesheet" href="../css/teacher_style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <?php include 'sidebar2.php'; ?>
+<?php include 'sidebar2.php'; ?>
+<div class="teacher-content">
+    <h2>Edit Payment</h2>
 
-    <div class="teacher-content">
-        <h2>Edit Payment</h2>
-        <?php if (!empty($error)): ?>
-            <p class="error"><?= $error; ?></p>
-        <?php endif; ?>
-        <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"] . "?id=" . $paymentId); ?>" method="post">
-            <label for="amount">Amount:</label>
-            <input type="number" name="amount" value="<?= $payment['Amount'] ?? ''; ?>" required>
+    <!-- Display payment details -->
+    <p><strong>Student Name:</strong> <?php echo $payment['FirstName'] . ' ' . $payment['LastName']; ?></p>
+    <p><strong>Total Amount:</strong> <?php echo number_format($payment['total_amount'], 2); ?></p>
+    <p><strong>Total Amount Paid:</strong> <?php echo number_format($payment['total_amount_paid'], 2); ?></p>
+    <p><strong>Running Balance:</strong> <?php echo number_format($payment['total_amount'] - $payment['total_amount_paid'], 2); ?></p>
 
-            <label for="amountPaid">Amount Paid:</label>
-            <input type="number" name="amountPaid" value="<?= $payment['AmountPaid'] ?? ''; ?>" required>
-
-            <label for="startDate">Start Date:</label>
-            <input type="date" name="startDate" value="<?= $payment['StartDate'] ?? ''; ?>" required>
-
-            <label for="endDate">End Date:</label>
-            <input type="date" name="endDate" value="<?= $payment['EndDate'] ?? ''; ?>" required>
-
-            <button type="submit" name="update" class="btn">Update Payment</button>
-        </form>
-    </div>
-    <?php include '../includes/footer.php'; ?>
+    <!-- Edit payment form -->
+    <form method="POST" action="">
+        <label for="amount_paid">Amount Paid:</label>
+        <input type="text" id="amount_paid" name="amount_paid" required>
+        
+        <label for="date_paid">Date Paid:</label>
+        <input type="date" id="date_paid" name="date_paid" required>
+        
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="Paid">Paid</option>
+            <option value="Partially Paid">Partially Paid</option>
+            <option value="Not Paid">Not Paid</option>
+        </select>
+        
+        <button type="submit">Update Payment</button>
+    </form>
+</div>
 </body>
 </html>

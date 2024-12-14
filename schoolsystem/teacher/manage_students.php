@@ -217,8 +217,7 @@ try {
                     <a href="edit_student.php?id=<?php echo $student['StudentID']; ?>" class="edit">Edit</a> |
                     <?php echo ($student['Status'] === 'Active') ? 
                         '<a href="deactivate_student.php?id=' . $student['StudentID'] . '" class="deactivate">Deactivate</a>' : 
-                        '<a href="activate_student.php?id=' . $student['StudentID'] . '" class="deactivate">Activate</a>'; ?> |
-                    <a href="delete_student.php?id=<?php echo $student['StudentID']; ?>" class="delete" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+                        '<a href="activate_student.php?id=' . $student['StudentID'] . '" class="deactivate">Activate</a>'; ?> 
                 </td>
             </tr>
             <?php endforeach; ?>

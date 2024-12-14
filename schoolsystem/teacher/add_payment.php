@@ -1,71 +1,131 @@
 <?php
-session_start();
+// Include the config.php for database connection
+include('../includes/config.php');
 
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-    header("location: ../login.php");
-    exit;
+// Initialize variables
+$studentID = $_GET['StudentID'] ?? '';  // Get the StudentID from the URL
+$enrollmentID = $_GET['EnrollmentID'] ?? '';  // Get the EnrollmentID from the URL
+$studentDetails = [];
+$paymentAdded = false;
+
+// Fetch the student and enrollment details
+if ($studentID && $enrollmentID) {
+    $sql = "SELECT s.FirstName, s.LastName, e.SchoolLevel, p.payment_id, p.total_amount, 
+                   COALESCE(p.total_amount_paid, 0) AS amount_paid, 
+                   COALESCE(p.running_balance, p.total_amount) AS running_balance
+            FROM Students s
+            JOIN Enrollment e ON s.StudentID = e.StudentID
+            LEFT JOIN Payment p ON e.EnrollmentID = p.EnrollmentID
+            WHERE s.StudentID = ? AND e.EnrollmentID = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$studentID, $enrollmentID]);
+    $studentDetails = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-require_once '../includes/config.php';
-
-$message = '';
-
-// Fetch school levels
-$schoolLevels = [];
-$stmt = $pdo->query("SELECT DISTINCT SchoolLevel FROM enrollment ORDER BY SchoolLevel");
-if ($stmt) {
-    $schoolLevels = $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
-
-$students = [];
-
-// Handle the payment submission and school level change
+// Process form submission for adding a payment
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['submit_payment'])) {
-        $studentID = $_POST['studentID'];
-        $totalAmount = $_POST['totalAmount'];
-        $amountPaid = $_POST['amountPaid'];
-        $startDate = $_POST['startDate'];
-        $endDate = $_POST['endDate'];
-        $paymentStatus = determinePaymentStatus($amountPaid, $totalAmount);
+    $paymentAmount = $_POST['payment_amount'];
+    $paymentDate = $_POST['payment_date'];  // The date from the form
 
-        $sql = "INSERT INTO payments (StudentID, Amount, AmountPaid, StartDate, EndDate, PaymentStatus) VALUES (:studentID, :totalAmount, :amountPaid, :startDate, :endDate, :paymentStatus)
-                ON DUPLICATE KEY UPDATE Amount = :totalAmount, AmountPaid = :amountPaid, StartDate = :startDate, EndDate = :endDate, PaymentStatus = :paymentStatus";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':studentID', $studentID);
-        $stmt->bindParam(':totalAmount', $totalAmount);
-        $stmt->bindParam(':amountPaid', $amountPaid);
-        $stmt->bindParam(':startDate', $startDate);
-        $stmt->bindParam(':endDate', $endDate);
-        $stmt->bindParam(':paymentStatus', $paymentStatus);
-        if ($stmt->execute()) {
-            // Redirect to manage_payments.php after successful update
-            header("location: manage_payments.php");
-            exit;
+    // Check if the payment amount is valid and student details exist
+    if ($paymentAmount > 0 && $studentDetails) {
+        // Calculate the new running balance
+        $newAmountPaid = $studentDetails['amount_paid'] + $paymentAmount;
+        $newRunningBalance = $studentDetails['total_amount'] - $newAmountPaid;
+
+        // Determine the payment status
+        if ($newRunningBalance == 0) {
+            $status = 'Fully Paid';
+        } elseif ($newRunningBalance < $studentDetails['total_amount']) {
+            $status = 'Partially Paid';
         } else {
-            $message = "An error occurred while updating the payment.";
+            $status = 'Not Paid';
         }
-    }
 
-    // Filter students by school level
-    if (!empty($_POST['schoolLevel'])) {
-        $schoolLevel = $_POST['schoolLevel'];
-        $stmt = $pdo->prepare("SELECT DISTINCT students.StudentID, students.FirstName, students.LastName FROM enrollment JOIN students ON enrollment.StudentID = students.StudentID WHERE enrollment.SchoolLevel = :schoolLevel GROUP BY students.StudentID");
-        $stmt->bindParam(':schoolLevel', $schoolLevel);
-        $stmt->execute();
-        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // If payment record doesn't exist, insert it
+        if (empty($studentDetails['payment_id'])) {
+            // Insert new Payment record if it doesn't exist
+            $sql = "INSERT INTO Payment (StudentID, EnrollmentID, total_amount, start_date, end_date, date_paid, running_balance, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $startDate = $paymentDate;  // Use the form date as start date
+            $endDate = $paymentDate;    // End date can be same for now (adjust if needed)
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                $studentID,
+                $enrollmentID,
+                $studentDetails['total_amount'],
+                $startDate,      // Start date
+                $endDate,        // End date
+                $paymentDate,    // The payment date for `date_paid`
+                $newRunningBalance,
+                $status
+            ]);
+
+            // Get the payment_id of the newly inserted payment
+            $paymentID = $pdo->lastInsertId();
+        } else {
+            // Update the existing Payment record for this student
+            $paymentID = $studentDetails['payment_id']; // Use the existing payment_id
+            $sql = "UPDATE Payment 
+                    SET running_balance = ?, status = ? 
+                    WHERE payment_id = ?";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                $newRunningBalance,
+                $status,
+                $paymentID
+            ]);
+        }
+
+        // Insert the payment details into the PaymentHistory table
+        $changeType = 'Payment Added';
+        $sql = "INSERT INTO PaymentHistory (payment_id, StudentID, EnrollmentID, total_amount, amount_paid, running_balance, status, change_type, change_date, date_paid)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+        
+        // Add `$paymentDate` here to ensure it is inserted into PaymentHistory
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([ 
+            $paymentID,  // The payment_id from the Payment table
+            $studentID,
+            $enrollmentID,
+            $studentDetails['total_amount'],
+            $paymentAmount,  // Record the payment amount in PaymentHistory
+            $newRunningBalance,
+            $status,
+            $changeType,
+            $paymentDate  // Insert the payment date here
+        ]);
+
+        // Calculate the sum of amount_paid in PaymentHistory for the current payment_id
+        $sql = "SELECT SUM(amount_paid) AS total_paid 
+                FROM PaymentHistory 
+                WHERE payment_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$paymentID]);
+        $totalPaid = $stmt->fetchColumn();
+
+        // Update the total_amount_paid in the Payment table with the sum of payments
+        $sql = "UPDATE Payment 
+                SET total_amount_paid = ? 
+                WHERE payment_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$totalPaid, $paymentID]);
+
+        // Set a flag to indicate payment was added
+        $paymentAdded = true;
+
+        // Redirect to manage_payments.php after successful payment
+        header("Location: manage_payments.php");
+        exit();
+    } else {
+        $error = "Invalid payment amount or missing student details.";
     }
 }
 
-function determinePaymentStatus($amountPaid, $totalAmount) {
-    if ($amountPaid >= $totalAmount) {
-        return 'Fully Paid';
-    } elseif ($amountPaid > 0) {
-        return 'Partially Paid';
-    }
-    return 'Not Paid';
-}
-
+include 'sidebar2.php';  // Include the cashier sidebar
 ?>
 
 <!DOCTYPE html>
@@ -73,155 +133,147 @@ function determinePaymentStatus($amountPaid, $totalAmount) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Student Payment</title>
+    <title>Add Payment</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+        /* General Reset */
+body, h1, h2, p, form, input, label, button, a {
     margin: 0;
     padding: 0;
-}
-
-.teacher-content {
-    max-width: 1200px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
-
-h2 {
-    text-align: center;
-    color: #007BFF;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-p {
-    color: red;
-    text-align: center;
-}
-
-form {
-    margin-top: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
-button[type="submit"] {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
+/* Body Styling */
+body {
+    background-color: #f4f7fc;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Main Content Styling */
+.teacher-content {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.teacher-content h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+/* Success and Error Messages */
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #c3e6cb;
     border-radius: 5px;
-    text-decoration: none;
-    color: white;
-    background-color: #007BFF;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    text-align: center;
 }
 
-button[type="submit"]:hover {
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
     background-color: #0056b3;
 }
 
-footer {
-    background-color: #343a40;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    width: 100%;
-    position: relative;
-    bottom: 0;
-    left: 0;
-    clear: both;
-    font-size: 14px;
-}
-
-footer a {
-    color: white; /* Ensures links in the footer are also white */
+/* Back Button Styling */
+.back-btn {
+    display: inline-block;
+    margin-top: 15px;
     text-decoration: none;
+    background-color: #6c757d;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1rem;
+    transition: background-color 0.3s;
 }
 
-footer a:hover {
-    color: #dcdcdc; /* Lightens the color when hovered over */
+.back-btn:hover {
+    background-color: #5a6268;
 }
+
     </style>
 </head>
 <body>
-    <?php include 'sidebar2.php'; ?>
-    <div class="teacher-content">
-        <h2>Add Student Payment</h2>
-        <p><?php echo $message; ?></p>
+<div class="teacher-content">
+    <h2>Add Payment for <?php echo $studentDetails['FirstName'] . ' ' . $studentDetails['LastName']; ?></h2>
 
-        <form action="add_payment.php" method="post">
-            <div class="form-group">
-                <label for="schoolLevel">School Level:</label>
-                <select name="schoolLevel" id="schoolLevel" onchange="this.form.submit()">
-                    <option value="">Select School Level</option>
-                    <?php foreach ($schoolLevels as $level): ?>
-                        <option value="<?= htmlspecialchars($level); ?>" <?= (isset($_POST['schoolLevel']) && $_POST['schoolLevel'] == $level) ? 'selected' : ''; ?>>
-                            <?= htmlspecialchars($level); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+    <!-- Display success message if payment was added -->
+    <?php if ($paymentAdded): ?>
+        <p class="success">Payment successfully added!</p>
+        <a href="manage_payments.php" class="back-btn">Back to Payment Records</a>
+    <?php endif; ?>
 
-            <div class="form-group">
-                <label for="studentID">Student:</label>
-                <select name="studentID" id="studentID" required>
-                    <option value="">Select Student</option>
-                    <?php foreach ($students as $student): ?>
-                        <option value="<?= $student['StudentID']; ?>">
-                            <?= htmlspecialchars($student['FirstName'] . ' ' . $student['LastName']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+    <!-- Display error message if there's an issue with payment -->
+    <?php if (isset($error)): ?>
+        <p class="error"><?php echo $error; ?></p>
+    <?php endif; ?>
 
-            <div class="form-group">
-                <label for="totalAmount">Total Amount:</label>
-                <input type="number" name="totalAmount" id="totalAmount" required>
-            </div>
+    <!-- Form for adding payment -->
+    <form method="POST" action="add_payment.php?StudentID=<?php echo $studentID; ?>&EnrollmentID=<?php echo $enrollmentID; ?>">
+        <label for="payment_amount">Payment Amount:</label>
+        <input type="number" name="payment_amount" id="payment_amount" required step="0.01" value="0.00">
 
-            <div class="form-group">
-                <label for="amountPaid">Amount Paid:</label>
-                <input type="number" name="amountPaid" id="amountPaid" required>
-            </div>
+        <label for="payment_date">Payment Date:</label>
+        <input type="date" name="payment_date" id="payment_date" required>
 
-            <div class="form-group">
-                <label for="startDate">Start Date:</label>
-                <input type="date" name="startDate" id="startDate" required>
-            </div>
+        <button type="submit">Add Payment</button>
+    </form>
 
-            <div class="form-group">
-                <label for="endDate">End Date:</label>
-                <input type="date" name="endDate" id="endDate" required>
-            </div>
-
-            <button type="submit" name="submit_payment">Submit Payment</button>
-        </form>
-    </div>
-    <?php include '../includes/footer.php'; ?>
+    <a href="manage_payments.php" class="back-btn">Back to Payment Records</a>
+</div>
 </body>
 </html>

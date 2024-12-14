@@ -19,22 +19,77 @@ include '../includes/header.php'; // Ensure this path is correct based on your d
     <form action="process_teacher_login.php" method="post">
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required>
+            <input type="text" name="username" id="username" 
+                   class="<?php echo (!empty($errorMessage)) ? 'input-error' : ''; ?>" 
+                   required>
+            <?php if (!empty($errorMessage)): ?>
+            <span class="error-message">Username or Password is incorrect.</span>
+            <?php endif; ?>
         </div>
         <div class="form-group">
             <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
+            <input type="password" name="password" id="password" 
+                   class="<?php echo (!empty($errorMessage)) ? 'input-error' : ''; ?>" 
+                   required>
         </div>
         <button type="submit" name="login">Login</button>
     </form>
-    <?php if (!empty($errorMessage)): ?>
-    <script>alert('<?php echo $errorMessage; ?>');</script>
-    <?php endif; ?>
 </div>
 
 <div>
-
     <br>
     <br>
 </div>
 <?php require_once '../includes/footer.php'; ?>
+
+<style>
+/* General container styling */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+/* Input styling */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Error input styling */
+input.input-error {
+    border: 1px solid red;
+    background-color: #ffe6e6;
+}
+
+/* Error message styling */
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: -10px;
+    display: block;
+}
+
+/* Submit button styling */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+</style>
