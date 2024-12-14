@@ -114,7 +114,104 @@ require_once 'sidebar.php'; // Include sidebar
 <head>
     <meta charset="UTF-8">
     <title>Edit Teacher</title>
-    <link rel="stylesheet" href="../css/style_admin.css">
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    .admin-content {
+        max-width: 800px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .error {
+        color: #d9534f;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .success-message {
+        text-align: center;
+        font-size: 16px;
+        color: #28a745;
+        margin-top: 20px;
+    }
+
+    .error-message {
+        text-align: center;
+        font-size: 16px;
+        color: #d9534f;
+        margin-top: 20px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .admin-content {
+            padding: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+        }
+    }
+</style>
+
 </head>
 <body>
     <div class="admin-content">

@@ -73,6 +73,12 @@ footer {
     <ul>
         <li><a href="index.php" class="<?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">Dashboard</a></li>
         <li><a href="manage_teachers.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_teachers.php' ? 'active' : ''; ?>">Manage Teachers</a></li>
+        <li><a href="manage_students.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_students.php' ? 'active' : ''; ?>">Students</a></li>
+        <li><a href="manage_subjects.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_subjects.php' ? 'active' : ''; ?>">Subjects</a></li>
+        <li><a href="manage_offerings.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_offerings.php' ? 'active' : ''; ?>">Offerings</a></li>
+        <li><a href="manage_enrollment.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_enrollment.php' ? 'active' : ''; ?>">Enrollment</a></li>
+        <li><a href="manage_grades.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_grades.php' ? 'active' : ''; ?>">Grades</a></li>
+        <li><a href="manage_payments.php" class="<?= basename($_SERVER['PHP_SELF']) == 'manage_payments.php' ? 'active' : ''; ?>">Payments</a></li>
         <li><a href="settings.php" class="<?= basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>">Settings</a></li>
         <li><a href="logout.php" class="<?= basename($_SERVER['PHP_SELF']) == 'logout.php' ? 'active' : ''; ?>">Log Out</a></li>
     </ul>
