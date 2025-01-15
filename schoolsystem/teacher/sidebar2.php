@@ -82,10 +82,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <div class="teacher-sidebar">
     <ul>
         <li><a href="teacher_index.php" class="<?php echo $current_page == 'teacher_index.php' ? 'active' : ''; ?>">Dashboard</a></li>
-        <li><a href="manage_students.php" class="<?php echo $current_page == 'manage_students.php' ? 'active' : ''; ?>">Students</a></li>
+        <!-- <li><a href="manage_students.php" class="<?php echo $current_page == 'manage_students.php' ? 'active' : ''; ?>">Students</a></li>
         <li><a href="manage_subjects.php" class="<?php echo $current_page == 'manage_subjects.php' ? 'active' : ''; ?>">Subjects</a></li>
         <li><a href="manage_offerings.php" class="<?php echo $current_page == 'manage_offerings.php' ? 'active' : ''; ?>">Offerings</a></li>
-        <li><a href="manage_enrollment.php" class="<?php echo $current_page == 'manage_enrollment.php' ? 'active' : ''; ?>">Enrollment</a></li>
+        <li><a href="manage_enrollment.php" class="<?php echo $current_page == 'manage_enrollment.php' ? 'active' : ''; ?>">Enrollment</a></li> -->
         <li><a href="manage_grades.php" class="<?php echo $current_page == 'manage_grades.php' ? 'active' : ''; ?>">Grades</a></li>
         <li><a href="manage_payments.php" class="<?php echo $current_page == 'manage_payments.php' ? 'active' : ''; ?>">Payments</a></li>
         <li><a href="teacher_logout.php" class="<?php echo $current_page == 'teacher_logout.php' ? 'active' : ''; ?>">Logout</a></li>
