@@ -6,7 +6,7 @@ include('../includes/config.php'); // Adjust the path if necessary
 $schoolLevel = '';
 $schoolYearStart = '';
 $schoolYearEnd = '';
-$semester = '';
+$achievement_test = '';
 $paymentRecords = [];
 $schoolLevels = [];
 
@@ -21,7 +21,7 @@ $sql = "SELECT
             s.LastName, 
             e.SchoolLevel, 
             p.school_year, 
-            p.semester, 
+            p.achievement_test, 
             p.total_amount, 
             p.total_amount_paid, 
             p.payment_id, 
@@ -48,10 +48,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $params[] = $schoolYearStart;
         $params[] = $schoolYearEnd;
     }
-    if (!empty($_POST['semester'])) {
-        $semester = $_POST['semester'];
-        $conditions[] = "p.semester = ?";
-        $params[] = $semester;
+    if (!empty($_POST['achievement_test'])) {
+        $achievement_test = $_POST['achievement_test'];
+        $conditions[] = "achievement_test = ?";
+        $params[] = $achievement_test;
     }
 }
 
@@ -67,12 +67,12 @@ $sql .= " GROUP BY
               s.LastName, 
               e.SchoolLevel, 
               p.school_year, 
-              p.semester, 
+              p.achievement_test, 
               p.total_amount, 
               p.total_amount_paid";
 
 // Sort the results for consistent display
-$sql .= " ORDER BY p.school_year DESC, p.semester ASC";
+$sql .= " ORDER BY p.school_year DESC, p.achievement_test ASC";
 
 // Prepare and execute the query
 $stmt = $pdo->prepare($sql);
@@ -449,10 +449,8 @@ include 'sidebar.php'; // Include the cashier sidebar
 <div class="admin-content">
     <h2>Manage Payments</h2>
 
-    <!-- Add Student Button -->
     <a href="add_student_payment.php" class="add-student-btn">Add Student to Payment List</a>
 
-    <!-- Filter Form -->
     <form method="POST" action="manage_payments.php">
         <label for="school_level">School Level:</label>
         <select name="school_level" id="school_level">
@@ -470,17 +468,16 @@ include 'sidebar.php'; // Include the cashier sidebar
         <label for="school_year_end">-</label>
         <input type="text" name="school_year_end" id="school_year_end" maxlength="4" value="<?php echo $schoolYearEnd; ?>" readonly>
 
-        <label for="semester">Semester:</label>
-        <select name="semester" id="semester">
-            <option value="">All Semesters</option>
-            <option value="First Semester" <?php echo ($semester == "First Semester") ? "selected" : ""; ?>>First Semester</option>
-            <option value="Second Semester" <?php echo ($semester == "Second Semester") ? "selected" : ""; ?>>Second Semester</option>
+        <label for="achievement_test">Achievement Test:</label>
+        <select name="achievement_test" id="achievement_test">
+            <option value="">All Achievement Test</option>
+            <option value="Achievement Test 1" <?php echo ($achievement_test == "Achievement Test 1") ? "selected" : ""; ?>>Achievement Test 1</option>
+            <option value="Achievement Test 2" <?php echo ($achievement_test == "Achievement Test 2") ? "selected" : ""; ?>>Achievement Test 2</option>
         </select>
 
         <button type="submit" name="filter">Proceed</button>
     </form>
 
-    <!-- Display Payment Records -->
     <h3>Payment Records</h3>
     <?php if (!empty($paymentRecords)): ?>
         <table>
@@ -489,7 +486,7 @@ include 'sidebar.php'; // Include the cashier sidebar
                     <th>Student Name</th>
                     <th>School Level</th>
                     <th>School Year</th>
-                    <th>Semester</th>
+                    <th>Achievement Test</th>
                     <th>Total Amount</th>
                     <th>Total Amount Paid</th>
                     <th>Running Balance</th>
@@ -500,24 +497,25 @@ include 'sidebar.php'; // Include the cashier sidebar
             <tbody>
                 <?php foreach ($paymentRecords as $record): ?>
                     <?php 
-                    // Calculate the running balance
-                    $runningBalance = $record['total_amount'] - $record['total_amount_paid'];
+                    // Ensure total amount paid does not exceed total amount
+                    $totalAmountPaid = min($record['total_amount'], $record['total_amount_paid']);
+                    $runningBalance = $record['total_amount'] - $totalAmountPaid;
                     $runningBalanceDisplay = max(0, $runningBalance); // Prevent negative values
                     ?>
                     <tr>
                         <td><?php echo $record['FirstName'] . ' ' . $record['LastName']; ?></td>
                         <td><?php echo $record['SchoolLevel']; ?></td>
                         <td><?php echo $record['school_year']; ?></td>
-                        <td><?php echo $record['semester']; ?></td>
+                        <td><?php echo $record['achievement_test']; ?></td>
                         <td><?php echo number_format($record['total_amount'], 2); ?></td>
-                        <td><?php echo number_format($record['total_amount_paid'], 2); ?></td>
+                        <td><?php echo number_format($totalAmountPaid, 2); ?></td>
                         <td><?php echo number_format($runningBalanceDisplay, 2); ?></td>
                         <td>
                             <?php
-                            // Display the payment status
-                            if ($runningBalance <= 0) {
+                            // Update payment status based on the adjusted total paid
+                            if ($runningBalanceDisplay <= 0) {
                                 echo 'Paid';
-                            } elseif ($runningBalance < $record['total_amount']) {
+                            } elseif ($runningBalanceDisplay < $record['total_amount']) {
                                 echo 'Partially Paid';
                             } else {
                                 echo 'Not Paid';
@@ -525,7 +523,7 @@ include 'sidebar.php'; // Include the cashier sidebar
                             ?>
                         </td>
                         <td>
-                            <a href="edit_payment.php?payment_id=<?php echo $record['payment_id']; ?>" class="btn edit-btn">Edit</a>
+                            <!-- <a href="edit_payment.php?payment_id=<?php echo $record['payment_id']; ?>" class="btn edit-btn">Edit</a> -->
                             <a href="delete_payment.php?payment_id=<?php echo $record['payment_id']; ?>&StudentID=<?php echo $record['StudentID']; ?>&EnrollmentID=<?php echo $record['EnrollmentID']; ?>" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this payment record?')">Delete</a>
                             <a href="add_payment.php?StudentID=<?php echo $record['StudentID']; ?>&EnrollmentID=<?php echo $record['EnrollmentID']; ?>" class="btn add-btn">Add Payment</a>
                             <a href="view_payment_status.php?payment_id=<?php echo $record['payment_id']; ?>" class="btn view-btn">View Status</a>
@@ -535,8 +533,16 @@ include 'sidebar.php'; // Include the cashier sidebar
             </tbody>
         </table>
     <?php else: ?>
-        <p>No payment records found.</p>
+        <p>No payment records found for the selected criteria.</p>
     <?php endif; ?>
 </div>
+
+<script>
+    function updateEndYear() {
+        const startYear = document.getElementById("school_year_start").value;
+        document.getElementById("school_year_end").value = startYear ? (parseInt(startYear) + 1).toString() : '';
+    }
+</script>
+
 </body>
 </html>

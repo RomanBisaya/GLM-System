@@ -15,9 +15,9 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     <link rel="stylesheet" href="../css/teacher_style.css">
 </head>
 <body>
-    <?php include 'sidebar2.php'; ?>
+    <?php include 'sidebar.php'; ?>
 
-    <div class="teacher-content">
+    <div class="admin-content">
         <h2>Enrollment Success</h2>
         <p>Enrollment successful.</p>
         <a href="add_enrollment.php">Back to Enrollment</a> | <a href="dashboard.php">Go to Dashboard</a>

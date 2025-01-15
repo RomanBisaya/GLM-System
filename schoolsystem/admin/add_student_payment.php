@@ -7,7 +7,7 @@ $enrollmentID = '';
 $totalAmount = '';
 $schoolYearStart = '';
 $schoolYearEnd = '';
-$semester = '';
+$achievementTest = '';  // Updated to handle achievement_test
 $students = [];
 
 // Fetch unique students with their EnrollmentID, ensuring no duplicates
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $totalAmount = $_POST['total_amount'];
     $schoolYearStart = $_POST['school_year_start'];
     $schoolYearEnd = $_POST['school_year_end'];
-    $semester = $_POST['semester'];
+    $achievementTest = $_POST['achievement_test'];  // Updated to handle achievement_test
 
     // Retrieve the StudentID corresponding to the selected EnrollmentID
     $sql = "SELECT StudentID FROM Enrollment WHERE EnrollmentID = ?";
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Insert the new payment record into the Payment table
-    $sql = "INSERT INTO Payment (EnrollmentID, StudentID, total_amount, school_year, semester, running_balance, status)
+    $sql = "INSERT INTO Payment (EnrollmentID, StudentID, total_amount, school_year, achievement_test, running_balance, status)
             VALUES (?, ?, ?, ?, ?, ?, ?)";
     
     // Calculate the running balance and set initial status
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status = "Not Paid";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$enrollmentID, $studentID, $totalAmount, $schoolYearStart . '-' . $schoolYearEnd, $semester, $runningBalance, $status]);
+    $stmt->execute([$enrollmentID, $studentID, $totalAmount, $schoolYearStart . '-' . $schoolYearEnd, $achievementTest, $runningBalance, $status]);
 
     // Optionally insert into PaymentHistory to track changes
     $paymentID = $pdo->lastInsertId(); // Get the last inserted payment_id
@@ -79,108 +79,108 @@ include 'sidebar.php'; // Include the cashier sidebar
     <link rel="stylesheet" href="styles.css">
     <style>
         /* General reset and box-sizing */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Body styles */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    padding: 20px;
-}
+        /* Body styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
 
-/* Admin content container */
-.admin-content {
-    margin-left: 250px; /* Ensures content is not hidden behind the sidebar */
-    padding: 20px;
-    flex-grow: 1; /* Makes content area grow to fill the remaining space */
-    background-color: #ffffff;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    max-width: 1200px;
-    margin-top: 50px; /* Adjust for any top spacing */
-    margin-bottom: 50px; /* Adjust for any bottom spacing */
-}
+        /* Admin content container */
+        .admin-content {
+            margin-left: 250px; /* Ensures content is not hidden behind the sidebar */
+            padding: 20px;
+            flex-grow: 1; /* Makes content area grow to fill the remaining space */
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            max-width: 1200px;
+            margin-top: 50px; /* Adjust for any top spacing */
+            margin-bottom: 50px; /* Adjust for any bottom spacing */
+        }
 
-.admin-content h2 {
-    font-size: 24px;
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-}
+        .admin-content h2 {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-/* Form styles */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Space between form elements */
-}
+        /* Form styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Space between form elements */
+        }
 
-/* Label styles */
-label {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 5px;
-}
+        /* Label styles */
+        label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
 
-/* Input field styles */
-input, select {
-    padding: 10px;
-    font-size: 16px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-}
+        /* Input field styles */
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
 
-/* School year container to align both textboxes inline */
-.school-year-container {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Space between the two textboxes */
-}
+        /* School year container to align both textboxes inline */
+        .school-year-container {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between the two textboxes */
+        }
 
-/* School year textboxes (specific styling) */
-#school_year_start, #school_year_end {
-    width: 80px; /* Shorter width for the school year input */
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
+        /* School year textboxes (specific styling) */
+        #school_year_start, #school_year_end {
+            width: 80px; /* Shorter width for the school year input */
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
 
-/* Button styles */
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
+        /* Button styles */
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
 
-button:hover {
-    background-color: #45a049;
-}
+        button:hover {
+            background-color: #45a049;
+        }
 
-/* Adjust form container to ensure proper inline layout */
-form label,
-form input,
-form select {
-    margin-bottom: 12px;
-}
+        /* Adjust form container to ensure proper inline layout */
+        form label,
+        form input,
+        form select {
+            margin-bottom: 12px;
+        }
 
-/* Responsive styling */
-@media (max-width: 768px) {
-    .admin-content {
-        width: 90%;
-    }
-}
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .admin-content {
+                width: 90%;
+            }
+        }
 
     </style>
 </head>
@@ -210,11 +210,11 @@ form select {
             <input type="text" name="school_year_end" id="school_year_end" maxlength="4" readonly required>
         </div>
 
-        <label for="semester">Semester:</label>
-        <select name="semester" id="semester" required>
-            <option value="">Select Semester</option>
-            <option value="First Semester">First Semester</option>
-            <option value="Second Semester">Second Semester</option>
+        <label for="achievement_test">Achievement Test:</label>
+        <select name="achievement_test" id="achievement_test" required>
+            <option value="">Select Achievement Test</option>
+            <option value="Achievement Test 1">Achievement Test 1</option>
+            <option value="Achievement Test 2">Achievement Test 2</option>
         </select>
 
         <button type="submit">Add Payment</button>

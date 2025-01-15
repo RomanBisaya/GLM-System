@@ -33,8 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error = "Error fetching subjects: " . $e->getMessage();
         }
     }
-
-    // Additional handling for form submissions related to offerings should be implemented here
 }
 
 // Close connection
@@ -50,130 +48,104 @@ unset($pdo);
     <title>Add Offering</title>
     <style>
         /* General page styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #e9f2fa;
-    color: #333;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e9f2fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-.admin-content {
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    flex-grow: 1; /* Allows content to expand to fit available space */
-    overflow: hidden; /* Prevents content from overflowing the container */
-}
+        .admin-content {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
 
-h2 {
-    text-align: center;
-    color: #007BFF;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
+        h2 {
+            text-align: center;
+            color: #007BFF;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
 
-.alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    text-align: center;
-}
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-.form-group {
-    margin-bottom: 20px;
-}
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-    color: #333;
-}
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            color: #333;
+        }
 
-input[type="text"],
-select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-top: 5px;
-}
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
 
-input[type="text"]:focus,
-select:focus {
-    border-color: #007BFF;
-    outline: none;
-}
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
 
-input[type="checkbox"] {
-    margin-right: 10px;
-}
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
 
-.form-group > label {
-    margin-right: 10px;
-}
+        input[type="submit"],
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
 
-input[type="submit"],
-.btn {
-    background-color: #007BFF;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    border: none;
-    display: inline-block;
-    transition: background-color 0.3s ease;
-}
+        input[type="submit"]:hover,
+        .btn:hover {
+            background-color: #0056b3;
+        }
 
-input[type="submit"]:hover,
-.btn:hover {
-    background-color: #0056b3;
-}
-
-input[type="submit"] {
-    margin-top: 20px;
-}
-
-input[type="text"][style="width: 60px;"] {
-    width: 60px;
-    display: inline-block;
-    margin-right: 5px;
-    text-align: center;
-}
-
-.form-group label[for^="subject_"] {
-    display: inline-block;
-    width: auto;
-}
-
-.footer {
-    background-color: #343a40;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    width: 100%;
-    position: relative;
-    bottom: 0;
-    left: 0;
-    margin-top: auto;
-}
-
-
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            width: 100%;
+            position: relative;
+            bottom: 0;
+            left: 0;
+            margin-top: auto;
+        }
     </style>
-
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
@@ -182,7 +154,7 @@ input[type="text"][style="width: 60px;"] {
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger"><?php echo $error; ?></div>
         <?php endif; ?>
-        
+
         <!-- School Level Filter Form -->
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group">
@@ -203,7 +175,11 @@ input[type="text"][style="width: 60px;"] {
             <form action="process_add_offering.php" method="post">
                 <div class="form-group">
                     <label for="term">Term:</label>
-                    <input type="text" name="term" id="term" class="form-control" required>
+                    <select name="term" id="term" class="form-control" required>
+                        <option value="">Select Term</option>
+                        <option value="Achievement Test 1">Achievement Test 1</option>
+                        <option value="Achievement Test 2">Achievement Test 2</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>School Year:</label>

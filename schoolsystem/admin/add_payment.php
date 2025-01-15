@@ -27,8 +27,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $paymentAmount = $_POST['payment_amount'];
     $paymentDate = $_POST['payment_date'];  // The date from the form
 
-    // Check if the payment amount is valid and student details exist
-    if ($paymentAmount > 0 && $studentDetails) {
+    // Calculate the remaining balance
+    $remainingBalance = $studentDetails['total_amount'] - $studentDetails['amount_paid'];
+
+    // Check if the payment amount exceeds the remaining balance
+    if ($paymentAmount <= 0 || $paymentAmount > $remainingBalance) {
+        $error = "Payment amount cannot exceed the remaining balance of " . number_format($remainingBalance, 2);
+    } else {
         // Calculate the new running balance
         $newAmountPaid = $studentDetails['amount_paid'] + $paymentAmount;
         $newRunningBalance = $studentDetails['total_amount'] - $newAmountPaid;
@@ -52,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $endDate = $paymentDate;    // End date can be same for now (adjust if needed)
             
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
+            $stmt->execute([ 
                 $studentID,
                 $enrollmentID,
                 $studentDetails['total_amount'],
@@ -73,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     WHERE payment_id = ?";
             
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
+            $stmt->execute([ 
                 $newRunningBalance,
                 $status,
                 $paymentID
@@ -120,8 +125,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Redirect to manage_payments.php after successful payment
         header("Location: manage_payments.php");
         exit();
-    } else {
-        $error = "Invalid payment amount or missing student details.";
     }
 }
 
@@ -164,7 +167,7 @@ body {
     width: 100%;
 }
 
-.teacher-content h2 {
+.admin-content h2 {
     color: #333;
     text-align: center;
     margin-bottom: 20px;
@@ -262,18 +265,43 @@ button:hover {
         <p class="error"><?php echo $error; ?></p>
     <?php endif; ?>
 
-    <!-- Form for adding payment -->
-    <form method="POST" action="add_payment.php?StudentID=<?php echo $studentID; ?>&EnrollmentID=<?php echo $enrollmentID; ?>">
-        <label for="payment_amount">Payment Amount:</label>
-        <input type="number" name="payment_amount" id="payment_amount" required step="0.01" value="0.00">
+    <!-- Payment Form -->
+    <form action="" method="POST">
+        <label for="payment_amount">Payment Amount</label>
+        <input type="number" name="payment_amount" id="payment_amount" step="0.01" required>
 
-        <label for="payment_date">Payment Date:</label>
+        <label for="payment_date">Payment Date</label>
         <input type="date" name="payment_date" id="payment_date" required>
 
         <button type="submit">Add Payment</button>
     </form>
-
-    <a href="manage_payments.php" class="back-btn">Back to Payment Records</a>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const paymentAmountInput = document.getElementById('payment_amount');
+        const totalAmount = <?php echo $studentDetails['total_amount']; ?>;
+        const errorMessage = document.createElement('p');
+        errorMessage.style.color = 'red';
+        errorMessage.style.fontSize = '0.9rem';
+        errorMessage.style.display = 'none';
+        paymentAmountInput.parentNode.appendChild(errorMessage);
+
+        paymentAmountInput.addEventListener('input', function () {
+            const paymentAmount = parseFloat(paymentAmountInput.value);
+            const remainingBalance = totalAmount - <?php echo $studentDetails['amount_paid']; ?>;
+
+            if (paymentAmount > remainingBalance) {
+                paymentAmountInput.style.borderColor = 'red';
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Payment amount cannot exceed the remaining balance of ' + remainingBalance.toFixed(2);
+            } else {
+                paymentAmountInput.style.borderColor = '#ddd';
+                errorMessage.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

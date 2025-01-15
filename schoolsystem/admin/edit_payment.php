@@ -78,101 +78,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Payment</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-}
-
-.admin-content {
-    margin: 20px auto;
-    padding: 20px;
-    max-width: 600px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-p {
-    font-size: 16px;
-    line-height: 1.5;
-    margin-bottom: 10px;
-    color: #555;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-label {
-    font-weight: bold;
-    color: #333;
-}
-
-input, select {
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-}
-
-input:focus, select:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-.button-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-button, .cancel-btn {
-    padding: 10px 15px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button {
-    background-color: #007bff;
-    color: #fff;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.cancel-btn {
-    text-decoration: none;
-    background-color: #dc3545;
-    color: #fff;
-    text-align: center;
-}
-
-.cancel-btn:hover {
-    background-color: #c82333;
-}
-
-    </style>
 </head>
 <body>
-<?php include 'sidebar.php'; ?>
-<div class="admin-content">
+<?php include 'sidebar2.php'; ?>
+<div class="teacher-content">
     <h2>Edit Payment</h2>
 
     <!-- Display payment details -->
@@ -196,10 +105,7 @@ button:hover {
             <option value="Not Paid">Not Paid</option>
         </select>
         
-        <div class="button-group">
-            <button type="submit">Update Payment</button>
-            <a href="manage_payments.php" class="cancel-btn">Cancel</a>
-        </div>
+        <button type="submit">Update Payment</button>
     </form>
 </div>
 </body>
