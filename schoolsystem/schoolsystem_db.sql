@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 14, 2024 at 05:54 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Jan 15, 2025 at 10:48 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -123,7 +123,15 @@ INSERT INTO `enrollment` (`EnrollmentID`, `StudentID`, `OfferingID`, `Enrollment
 (87, 18, 67, '2024-12-03', 'Active', 'YS 7: Grade 6', 1),
 (88, 19, 65, '2024-12-03', 'Active', 'YS 7: Grade 6', 1),
 (89, 19, 66, '2024-12-03', 'Active', 'YS 7: Grade 6', 1),
-(90, 19, 67, '2024-12-03', 'Active', 'YS 7: Grade 6', 1);
+(90, 19, 67, '2024-12-03', 'Active', 'YS 7: Grade 6', 1),
+(91, 20, 68, '2025-01-07', 'Active', 'YS 7: Grade 6', 1),
+(92, 20, 69, '2025-01-07', 'Active', 'YS 7: Grade 6', 1),
+(93, 20, 70, '2025-01-07', 'Active', 'YS 7: Grade 6', 1),
+(94, 20, 71, '2025-01-07', 'Active', 'YS 7: Grade 6', 1),
+(95, 21, 72, '2025-01-15', 'Active', 'YS 7: Grade 6', 1),
+(96, 21, 73, '2025-01-15', 'Active', 'YS 7: Grade 6', 1),
+(97, 21, 74, '2025-01-15', 'Active', 'YS 7: Grade 6', 1),
+(98, 21, 75, '2025-01-15', 'Active', 'YS 7: Grade 6', 1);
 
 -- --------------------------------------------------------
 
@@ -200,7 +208,8 @@ INSERT INTO `grades` (`GradeID`, `EnrollmentID`, `SubjectID`, `TestType`, `Grade
 (123, 86, 25, NULL, 'Excellent'),
 (124, 87, 26, NULL, 'Excellent'),
 (126, 88, 3, NULL, 'Excellent'),
-(128, 89, 25, NULL, 'Excellent');
+(128, 89, 25, NULL, 'Excellent'),
+(129, 92, 25, NULL, 'Very Good');
 
 -- --------------------------------------------------------
 
@@ -245,7 +254,15 @@ INSERT INTO `offerings` (`OfferingID`, `SubjectID`, `Term`, `SchoolYear`, `Sched
 (64, 25, '1st Semester', '2024-2025', '1pm - 3pm'),
 (65, 3, '2 Semester', '2025-2026', ''),
 (66, 25, '2 Semester', '2025-2026', ''),
-(67, 26, '2 Semester', '2025-2026', '');
+(67, 26, '2 Semester', '2025-2026', ''),
+(68, 3, '1st Semester', '2025-2026', '8am - 9am'),
+(69, 25, '1st Semester', '2025-2026', '9am - 10am'),
+(70, 26, '1st Semester', '2025-2026', '1pm - 2pm'),
+(71, 33, '1st Semester', '2025-2026', '2pm - 3pm'),
+(72, 3, 'Achievement Test 1', '2025-2026', ''),
+(73, 25, 'Achievement Test 1', '2025-2026', ''),
+(74, 26, 'Achievement Test 1', '2025-2026', ''),
+(75, 33, 'Achievement Test 1', '2025-2026', '');
 
 -- --------------------------------------------------------
 
@@ -267,16 +284,16 @@ CREATE TABLE `payment` (
   `school_year` varchar(9) NOT NULL,
   `semester` varchar(15) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `achievement_test` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payment`
 --
 
-INSERT INTO `payment` (`payment_id`, `EnrollmentID`, `StudentID`, `total_amount`, `total_amount_paid`, `start_date`, `end_date`, `date_paid`, `status`, `running_balance`, `school_year`, `semester`, `created_at`, `updated_at`) VALUES
-(27, 81, 16, 30000.00, 30000.00, '0000-00-00', '0000-00-00', NULL, 'Fully Paid', 0.00, '2024-2025', 'Second Semester', '2024-12-04 23:15:35', '2024-12-04 23:34:49'),
-(33, 88, 19, 30000.00, 30500.00, '0000-00-00', '0000-00-00', NULL, 'Partially Paid', -500.00, '2024-2025', 'First Semester', '2024-12-06 05:51:39', '2024-12-06 05:54:53');
+INSERT INTO `payment` (`payment_id`, `EnrollmentID`, `StudentID`, `total_amount`, `total_amount_paid`, `start_date`, `end_date`, `date_paid`, `status`, `running_balance`, `school_year`, `semester`, `created_at`, `updated_at`, `achievement_test`) VALUES
+(43, 95, 21, 30000.00, 30000.00, '0000-00-00', '0000-00-00', NULL, 'Fully Paid', 0.00, '2025-2026', '', '2025-01-15 07:24:32', '2025-01-15 09:46:03', 'Achievement Test 1');
 
 -- --------------------------------------------------------
 
@@ -303,79 +320,9 @@ CREATE TABLE `paymenthistory` (
 --
 
 INSERT INTO `paymenthistory` (`history_id`, `payment_id`, `StudentID`, `EnrollmentID`, `total_amount`, `amount_paid`, `running_balance`, `status`, `change_type`, `change_date`, `date_paid`) VALUES
-(28, 27, 16, 81, 30000.00, 0.00, 30000.00, 'Not Paid', 'Initial Payment', '2024-12-04 23:15:35', NULL),
-(29, 27, 16, 81, 30000.00, 13000.00, 17000.00, 'Partially Paid', 'Payment Added', '2024-12-04 23:16:12', '2024-12-06'),
-(30, 27, 16, 81, 30000.00, 5000.00, 25000.00, 'Partially Paid', 'Payment Added', '2024-12-04 23:24:30', '2024-12-09'),
-(31, 27, 16, 81, 30000.00, 10000.00, 2000.00, 'Partially Paid', 'Payment Added', '2024-12-04 23:33:42', '2024-12-11'),
-(32, 27, 16, 81, 30000.00, 2000.00, 0.00, 'Fully Paid', 'Payment Added', '2024-12-04 23:34:49', '2024-12-13'),
-(59, 33, 19, 88, 30000.00, 0.00, 30000.00, 'Not Paid', 'Initial Payment', '2024-12-06 05:51:39', NULL),
-(60, 33, 19, 88, 30000.00, 5000.00, 25000.00, 'Partially Paid', 'Payment Added', '2024-12-06 05:51:55', '2024-12-06'),
-(61, 33, 19, 88, 30000.00, 9000.00, 16000.00, 'Partially Paid', 'Payment Added', '2024-12-06 05:52:39', '2024-12-16'),
-(63, 33, 19, 88, 30000.00, 16500.00, -500.00, 'Partially Paid', 'Payment Added', '2024-12-06 05:54:53', '2024-12-20');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payments`
---
-
-CREATE TABLE `payments` (
-  `PaymentID` int(11) NOT NULL,
-  `StudentID` int(11) NOT NULL,
-  `Amount` decimal(10,2) NOT NULL,
-  `AmountPaid` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `StartDate` date NOT NULL,
-  `EndDate` date NOT NULL,
-  `PaymentStatus` enum('Fully Paid','Partially Paid','Not Paid') NOT NULL,
-  `DatePaid` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `payments`
---
-
-INSERT INTO `payments` (`PaymentID`, `StudentID`, `Amount`, `AmountPaid`, `StartDate`, `EndDate`, `PaymentStatus`, `DatePaid`) VALUES
-(1, 9, 3000.00, 3000.00, '2024-06-03', '2024-07-08', 'Fully Paid', NULL),
-(2, 10, 3000.00, 3000.00, '2024-05-06', '2024-06-03', 'Fully Paid', NULL),
-(3, 13, 3000.00, 3000.00, '2024-05-06', '2024-06-03', 'Fully Paid', NULL),
-(6, 7, 1000.00, 500.00, '2024-05-06', '2024-06-03', 'Partially Paid', NULL),
-(7, 14, 3000.00, 3999.00, '2024-05-06', '2024-06-03', 'Fully Paid', NULL),
-(8, 15, 3000.00, 2000.00, '2024-05-06', '2024-06-03', 'Partially Paid', NULL),
-(11, 17, 3000.00, 2500.00, '2024-11-20', '2024-12-20', 'Partially Paid', NULL),
-(26, 16, 3000.00, 3000.00, '2024-12-02', '2024-12-31', 'Fully Paid', '2024-12-02'),
-(27, 18, 30000.00, 3000.00, '2025-06-16', '2026-03-16', 'Partially Paid', '2024-12-03'),
-(28, 19, 30000.00, 15000.00, '2025-06-16', '2025-03-07', 'Partially Paid', '2024-12-03');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payment_history`
---
-
-CREATE TABLE `payment_history` (
-  `PaymentHistoryID` int(11) NOT NULL,
-  `StudentID` int(11) DEFAULT NULL,
-  `AmountPaid` decimal(10,2) DEFAULT NULL,
-  `RunningBalance` decimal(10,2) DEFAULT NULL,
-  `DatePaid` date DEFAULT NULL,
-  `Status` varchar(255) DEFAULT NULL,
-  `TransactionDate` timestamp NOT NULL DEFAULT current_timestamp(),
-  `PaymentID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `payment_history`
---
-
-INSERT INTO `payment_history` (`PaymentHistoryID`, `StudentID`, `AmountPaid`, `RunningBalance`, `DatePaid`, `Status`, `TransactionDate`, `PaymentID`) VALUES
-(6, NULL, 200.00, 2800.00, '2024-12-02', 'Partially Paid', '2024-12-01 16:00:00', 25),
-(7, NULL, 300.00, 2500.00, '2024-12-02', 'Partially Paid', '2024-12-01 16:00:00', 25),
-(8, NULL, 1000.00, 1500.00, '2024-12-02', 'Partially Paid', '2024-12-01 16:00:00', 25),
-(9, NULL, 600.00, 2400.00, '2024-12-02', 'Partially Paid', '2024-12-01 16:00:00', 26),
-(10, NULL, 600.00, 1800.00, '2024-12-02', 'Partially Paid', '2024-12-01 16:00:00', 26),
-(11, NULL, 1800.00, 0.00, '2024-12-02', 'Fully Paid', '2024-12-01 16:00:00', 26),
-(12, NULL, 3000.00, 27000.00, '2024-12-03', 'Partially Paid', '2024-12-02 16:00:00', 27),
-(13, NULL, 15000.00, 15000.00, '2024-12-03', 'Partially Paid', '2024-12-02 16:00:00', 28);
+(87, 43, 21, 95, 30000.00, 0.00, 30000.00, 'Not Paid', 'Initial Payment', '2025-01-15 07:24:32', NULL),
+(88, 43, 21, 95, 30000.00, 2000.00, 28000.00, 'Partially Paid', 'Payment Added', '2025-01-15 09:42:53', '2025-01-15'),
+(89, 43, 21, 95, 30000.00, 28000.00, 0.00, 'Fully Paid', 'Payment Added', '2025-01-15 09:46:03', '2025-01-18');
 
 -- --------------------------------------------------------
 
@@ -414,7 +361,9 @@ INSERT INTO `students` (`StudentID`, `FirstName`, `MiddleName`, `LastName`, `Bir
 (16, 'Thom', 'Bends', 'Yorke', NULL, NULL, NULL, 'radiohead', '$2y$10$kfMyJ/C93DY2CTe.1dDde.wNhSkeAEWMw.quCWt8rP8PdW0jfy7Ta', 'Active'),
 (17, 'Sova', 'Panaghugpong', 'Valorant', NULL, NULL, NULL, 'sentinel', '$2y$10$EAEup0B8qUhz5rV3HuMBTumnONwUQ2FBNTxolceY4TrOoJ/TtXfTq', 'Active'),
 (18, 'Aljun', 'Mata', 'Itturiaga', NULL, NULL, NULL, 'aljun.mata', '$2y$10$IwwHtyWvsE9v7dlPj2zAdeMSBH8gAVYor1eiYE5V./NxcHtDKMUtC', 'Active'),
-(19, 'Ken', 'Ballsy', 'Takakura', NULL, NULL, NULL, 'numbahwan', '$2y$10$N/oYbF4lGb/.QGooQrMnf.OyXIblydMiVQ.HqN8gR4TzGYi4EMQ3O', 'Active');
+(19, 'Ken', 'Ballsy', 'Takakura', NULL, NULL, NULL, 'numbahwan', '$2y$10$N/oYbF4lGb/.QGooQrMnf.OyXIblydMiVQ.HqN8gR4TzGYi4EMQ3O', 'Active'),
+(20, 'Finn', '', 'Mertens', NULL, NULL, NULL, 'finn.mertens', '$2y$10$3Y4ZRu6jJAbC1PqUTYGaKuPzOyoNe3Wmc9rUuLIIiJ2NIr9qHe/SW', 'Active'),
+(21, 'Casey', '', 'Neistat', NULL, NULL, NULL, 'vlogger', '$2y$10$3RfWOdA1HT8fZghydaJ2UutEt7sJP0zL9gnjJwGZBQx058P7cOlnG', 'Active');
 
 -- --------------------------------------------------------
 
@@ -459,7 +408,8 @@ INSERT INTO `subjects` (`SubjectID`, `SubjectName`, `Description`, `SubjectSchoo
 (23, 'Filipino 2', '', 'YS 3: Grade 2', 1, '2024-05-27 04:35:10', '2024-05-27 04:35:10'),
 (24, 'Araling Panlipunan 2', '', 'YS 3: Grade 2', 1, '2024-05-27 04:35:29', '2024-05-27 04:35:29'),
 (25, 'English 6', '', 'YS 7: Grade 6', 1, '2024-08-20 10:59:19', '2024-08-20 10:59:19'),
-(26, 'Math 6', '', 'YS 7: Grade 6', 1, '2024-12-03 03:06:02', '2024-12-03 03:06:02');
+(26, 'Math 6', '', 'YS 7: Grade 6', 1, '2024-12-03 03:06:02', '2024-12-03 03:06:02'),
+(33, 'Physical Education 6', '', 'YS 7: Grade 6', 1, '2025-01-07 09:56:11', '2025-01-07 09:56:55');
 
 -- --------------------------------------------------------
 
@@ -485,7 +435,8 @@ INSERT INTO `teachers` (`TeacherID`, `FirstName`, `MiddleName`, `LastName`, `Use
 (2, 'Cloud', 'Jones', 'Strife', 'materiaowner', '$2y$10$OhsoYM1FpfQfaJANKSsq4eZgiZJtTma8Y2/8tCFD.FRwBHMfJocPC'),
 (4, 'Rosalie', 'Elisio', 'Mondejar', 'RosalieM', '$2y$10$utVYFJiTF8K1E0f2U7SFcuueKEEZQGmnfmK9lG2swTHnbo0c8IZta'),
 (5, 'Donald', 'McLeod', 'Trump', 'elephant', '$2y$10$URZqtblksnZDbpwI7.67EO5dSuSfrKaPACXqZOSOeXd7ec5InCAg6'),
-(6, 'John', 'the', 'Baptist', 'delasalle', '$2y$10$dIXtnjxspFFsyBOQ.0207erZlvxAVtKzUmoNgBHs3cP7pCgeN29pC');
+(6, 'John', 'the', 'Baptist', 'delasalle', '$2y$10$dIXtnjxspFFsyBOQ.0207erZlvxAVtKzUmoNgBHs3cP7pCgeN29pC'),
+(8, 'George', '', 'Dumalagan', 'george.dumalagan', '$2y$10$5gjEgOEfvpy3K1bIDThKKOIha6YAtvV8vnp2AXNcV5QnaqxoW8VDW');
 
 --
 -- Indexes for dumped tables
@@ -539,19 +490,6 @@ ALTER TABLE `paymenthistory`
   ADD KEY `EnrollmentID` (`EnrollmentID`);
 
 --
--- Indexes for table `payments`
---
-ALTER TABLE `payments`
-  ADD PRIMARY KEY (`PaymentID`),
-  ADD KEY `StudentID` (`StudentID`);
-
---
--- Indexes for table `payment_history`
---
-ALTER TABLE `payment_history`
-  ADD PRIMARY KEY (`PaymentHistoryID`);
-
---
 -- Indexes for table `students`
 --
 ALTER TABLE `students`
@@ -585,61 +523,49 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `enrollment`
 --
 ALTER TABLE `enrollment`
-  MODIFY `EnrollmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
+  MODIFY `EnrollmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `GradeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `GradeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
 
 --
 -- AUTO_INCREMENT for table `offerings`
 --
 ALTER TABLE `offerings`
-  MODIFY `OfferingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `OfferingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `paymenthistory`
 --
 ALTER TABLE `paymenthistory`
-  MODIFY `history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
-
---
--- AUTO_INCREMENT for table `payments`
---
-ALTER TABLE `payments`
-  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
-
---
--- AUTO_INCREMENT for table `payment_history`
---
-ALTER TABLE `payment_history`
-  MODIFY `PaymentHistoryID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `StudentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `SubjectID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `SubjectID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `TeacherID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `TeacherID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -679,12 +605,6 @@ ALTER TABLE `paymenthistory`
   ADD CONSTRAINT `paymenthistory_ibfk_1` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`),
   ADD CONSTRAINT `paymenthistory_ibfk_2` FOREIGN KEY (`StudentID`) REFERENCES `students` (`StudentID`),
   ADD CONSTRAINT `paymenthistory_ibfk_3` FOREIGN KEY (`EnrollmentID`) REFERENCES `enrollment` (`EnrollmentID`);
-
---
--- Constraints for table `payments`
---
-ALTER TABLE `payments`
-  ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`StudentID`) REFERENCES `students` (`StudentID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
